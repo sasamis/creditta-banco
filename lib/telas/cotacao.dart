@@ -8,7 +8,11 @@ class Cotacao extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Cotação')),
       body: const Center(
-        child: Text('Aqui vai a tela de Cotação'),
+        child: Text(
+          'Esta é a tela de cotação.',
+          style: TextStyle(fontSize: 22),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
