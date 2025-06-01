@@ -9,63 +9,93 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _cpfController = TextEditingController();
-  final TextEditingController _senhaController = TextEditingController();
+  final _cpfController = TextEditingController();
+  final _senhaController = TextEditingController();
+
+  InputDecoration _inputDeco(String label) => InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Bem vindo ao Creditta!',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0D47A1), Color(0xFF42A5F5)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Card(
+                color: Colors.white,
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircleAvatar(
+                          radius: 32,
+                          backgroundColor: Color.fromARGB(255, 13, 71, 161),
+                          child: Icon(Icons.person, color: Colors.white, size: 38),
+                        ),
+                        const SizedBox(height: 18),
+                        const Text(
+                          'Bem-vindo ao Creditta!',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 13, 71, 161),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 32),
+                        TextFormField(
+                          controller: _cpfController,
+                          decoration: _inputDeco('CPF'),
+                          keyboardType: TextInputType.number,
+                          maxLength: 11,
+                          validator: (v) =>
+                              v == null || v.isEmpty ? 'Informe o CPF' : v.length != 11 ? 'CPF deve ter 11 dígitos' : null,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _senhaController,
+                          decoration: _inputDeco('Senha'),
+                          obscureText: true,
+                          validator: (v) => v == null || v.isEmpty ? 'Informe a senha' : null,
+                        ),
+                        const SizedBox(height: 28),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(255, 13, 71, 161),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                            ),
+                            child: const Text('Entrar', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                Navigator.pushReplacementNamed(context, '/home');
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 32),
-                TextFormField(
-                  controller: _cpfController,
-                  decoration: const InputDecoration(labelText: 'CPF'),
-                  keyboardType: TextInputType.number,
-                  maxLength: 11,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Informe o CPF';
-                    }
-                    if (value.length != 11) {
-                      return 'CPF deve ter 11 dígitos';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _senhaController,
-                  decoration: const InputDecoration(labelText: 'Senha'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Informe a senha';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  child: const Text('Entrar'),
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      Navigator.pushReplacementNamed(context, '/home');
-                    }
-                  },
-                ),
-              ],
+              ),
             ),
           ),
         ),
