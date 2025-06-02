@@ -1,18 +1,126 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
-class Transferencia extends StatelessWidget {
+class Transferencia extends StatefulWidget {
   const Transferencia({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final List<Map<String, String>> transferencias = [
-      {'nome': 'João Silva', 'valor': 'R\$ 150,00'},
-      {'nome': 'Maria Souza', 'valor': 'R\$ 320,50'},
-      {'nome': 'Carlos Lima', 'valor': 'R\$ 75,20'},
-      {'nome': 'Ana Paula', 'valor': 'R\$ 1.200,00'},
-      {'nome': 'Pedro Santos', 'valor': 'R\$ 50,00'},
-    ];
+  State<Transferencia> createState() => _TransferenciaState();
+}
 
+class _TransferenciaState extends State<Transferencia> {
+  final List<Map<String, String>> transferencias = [
+    {'nome': 'João Silva', 'valor': 'R\$ 150,00'},
+    {'nome': 'Maria Souza', 'valor': 'R\$ 320,50'},
+    {'nome': 'Carlos Lima', 'valor': 'R\$ 75,20'},
+    {'nome': 'Ana Paula', 'valor': 'R\$ 1.200,00'},
+    {'nome': 'Pedro Santos', 'valor': 'R\$ 50,00'},
+  ];
+
+  final _nomeController = TextEditingController();
+  final _valorController = TextEditingController();
+
+  void _limparCampos() {
+    _nomeController.clear();
+    _valorController.clear();
+  }
+
+  void _adicionarTransferencia() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Nova Transferência'),
+        content: _formularioTransferencia(),
+        actions: [
+          TextButton(
+            onPressed: () {
+              _limparCampos();
+              Navigator.pop(context);
+            },
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (_nomeController.text.isNotEmpty && _valorController.text.isNotEmpty) {
+                setState(() {
+                  String valor = _valorController.text.trim();
+                  if (!valor.startsWith('R\$')) {
+                    valor = 'R\$ $valor';
+                  }
+                  transferencias.insert(0, {
+                    'nome': _nomeController.text,
+                    'valor': valor,
+                  });
+                });
+                Navigator.pop(context);
+                _mostrarComprovante(_nomeController.text, _valorController.text);
+                _limparCampos();
+              }
+            },
+            child: const Text('Transferir'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _formularioTransferencia() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        TextField(
+          controller: _nomeController,
+          decoration: const InputDecoration(labelText: 'Nome do destinatário'),
+        ),
+        TextField(
+          controller: _valorController,
+          decoration: const InputDecoration(labelText: 'Valor (ex: R\$ 100,00)'),
+          keyboardType: TextInputType.number,
+        ),
+      ],
+    );
+  }
+
+  void _mostrarComprovante(String nome, String valor) {
+    showDialog(
+      context: context,
+      builder: (context) => _comprovanteDialog(nome, valor),
+    );
+  }
+
+  Widget _comprovanteDialog(String nome, String valor) {
+    final texto = 'Comprovante de Transferência\n'
+        'Destinatário: $nome\n'
+        'Valor: $valor\n'
+        'Banco Creditta\nAgência: 0001  Conta: 12345-6';
+    return AlertDialog(
+      title: const Text('Comprovante de Transferência'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Destinatário: $nome'),
+          Text('Valor: $valor'),
+          const SizedBox(height: 12),
+          const Text('Banco Creditta\nAgência: 0001  Conta: 12345-6'),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Fechar'),
+        ),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.share),
+          label: const Text('Compartilhar'),
+          onPressed: () => Share.share(texto),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transferências'),
@@ -35,44 +143,6 @@ class Transferencia extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Center(
-                child: Card(
-                  color: Colors.white,
-                  elevation: 8,
-                  shadowColor: Colors.blueAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  child: Container(
-                    width: 320,
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: const [
-                        Text(
-                          'Banco Creditta',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 13, 71, 161),
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Agência: 0001  Conta: 12345-6',
-                          style: TextStyle(color: Colors.black54),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Saldo: R\$ 12.345,67',
-                          style: TextStyle(fontSize: 18, color: Colors.green),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
             const Padding(
               padding: EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
@@ -121,6 +191,13 @@ class Transferencia extends StatelessWidget {
             const SizedBox(height: 16),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _adicionarTransferencia,
+        icon: const Icon(Icons.add),
+        label: const Text('Nova Transferência'),
+        backgroundColor: const Color.fromARGB(255, 13, 71, 161),
+        foregroundColor: Colors.white, // <-- Adicione esta linha
       ),
     );
   }
